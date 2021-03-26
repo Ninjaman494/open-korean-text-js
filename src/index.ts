@@ -1,5 +1,5 @@
-var java = require("java");
-var mvn = require("node-java-maven");
+import java from "java";
+import mvn from "node-java-maven";
 
 const className = "org.openkoreantext.processor.OpenKoreanTextProcessorJava";
 
