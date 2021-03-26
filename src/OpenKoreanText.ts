@@ -1,11 +1,12 @@
 import util from "util";
 import java from "java";
 import mvn from "node-java-maven";
+import { createToken, KoreanToken } from "./KoreanToken";
 
 const className = "org.openkoreantext.processor.OpenKoreanTextProcessorJava";
 
 export default class OpenKoreanText {
-  javaPromise: Promise<undefined>;
+  javaPromise: Promise<any>;
 
   constructor() {
     const mvnPromise = util.promisify(mvn);
@@ -19,18 +20,28 @@ export default class OpenKoreanText {
           console.log("adding " + c + " to classpath");
           java.classpath.push(c);
         });
+
+        return java.import(className);
       });
   }
 
   normalize = async (text: string) => {
-    await this.javaPromise;
-    const result = java.callStaticMethodSync(className, "normalize", text);
-    return result;
+    const javaClass = await this.javaPromise;
+    const normalized = javaClass.normalizeSync(text);
+    return normalized;
   };
 
-  tokenize = async (text: string) => {
-    await this.javaPromise;
-    const result = java.callStaticMethodSync(className, "tokenize", text);
-    return result;
+  tokenize = async (text: string): Promise<KoreanToken[]> => {
+    const javaClass = await this.javaPromise;
+
+    const tokenSet = javaClass.tokenizeSync(text);
+    const tokensList = javaClass.tokensToJavaKoreanTokenListSync(tokenSet);
+
+    const tokens = [];
+    for (let i = 0; i < tokensList.sizeSync(); i++) {
+      tokens.push(createToken(tokensList.getSync(i)));
+    }
+
+    return tokens;
   };
 }
