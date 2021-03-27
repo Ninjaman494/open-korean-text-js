@@ -38,11 +38,12 @@ export type KoreanPOS =
   | "VerbPrefix";
 
 export const createToken = (token: any): KoreanToken => {
+  const stem = token.getStemSync();
   return {
     length: token.getLengthSync(),
     offset: token.getOffsetSync(),
     pos: token.getPosSync().nameSync(),
-    stem: token.getStemSync(),
+    stem: stem !== "" ? stem : undefined,
     text: token.getTextSync(),
     unknown: token.isUnknownSync(),
   };
